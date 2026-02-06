@@ -18,7 +18,7 @@ static void on_power_off_clicked (GtkMenuItem *item, gpointer user_data)
 	printf("Power off %s (%s)\n", cb->model, cb->node);
 	char body[256];
 	snprintf(body, sizeof(body), "Powering off %s (%s)", cb->model, cb->node);
-	NotifyNotification *n = send_notification("mountatray", body, "drive-harddisk");
+	NotifyNotification *n = send_notification("mountatray", body, "drive-removable-media");
 
 	for (size_t i = 0; i < cb->part_count; i++) {
 		if (cb->parts[i].mounted) {
@@ -28,7 +28,7 @@ static void on_power_off_clicked (GtkMenuItem *item, gpointer user_data)
 
 	power_off_drive(cb->node);
 	snprintf(body, sizeof(body), "%s (%s) powered off", cb->model, cb->node);
-	update_notification(n, "mountatray", body, "drive-harddisk");
+	update_notification(n, "mountatray", body, "drive-removable-media");
 	g_object_unref(n);
 }
 
@@ -43,12 +43,12 @@ static void on_partition_clicked(GtkMenuItem *item, gpointer user_data)
 		unmount_partition(part->node);
 		snprintf(body, sizeof(body), "%s (%s) unmounted", 
 				part->label, part->node);
-		send_notification("mountatray", body, "drive-harddisk");
+		send_notification("mountatray", body, "drive-removable-media");
 	} else {
 		mount_partition(part->node);
 		snprintf(body, sizeof(body), "%s (%s) mounted", 
 				part->label, part->node);
-		send_notification("mountatray", body, "drive-harddisk");
+		send_notification("mountatray", body, "drive-removable-media");
 	}
 }
 
@@ -99,7 +99,7 @@ static void show_menu(GtkStatusIcon *status_icon, guint button, guint time)
 
 				GtkWidget *part_item = gtk_image_menu_item_new_with_label(part_label);
 				GtkWidget *part_image = gtk_image_new_from_icon_name(
-						"device_usb", GTK_ICON_SIZE_MENU);
+						"drive-multidisk", GTK_ICON_SIZE_MENU);
 				gtk_image_menu_item_set_image(
 						GTK_IMAGE_MENU_ITEM(part_item), part_image);
 				g_signal_connect(part_item, "activate", 
@@ -113,7 +113,11 @@ static void show_menu(GtkStatusIcon *status_icon, guint button, guint time)
 			cb->model = drives[i].model;
 			cb->parts = drives[i].parts;
 			cb->part_count = drives[i].part_count;
-			GtkWidget *power_off_item = gtk_menu_item_new_with_label("Power off");
+			GtkWidget *power_off_item = gtk_image_menu_item_new_with_label("Power off");
+			GtkWidget *power_off_image = gtk_image_new_from_icon_name(
+					"gtk-stop", GTK_ICON_SIZE_MENU);
+			gtk_image_menu_item_set_image(
+					GTK_IMAGE_MENU_ITEM(power_off_item), power_off_image);
 			g_signal_connect(power_off_item, "activate", 
 					G_CALLBACK(on_power_off_clicked), cb);
 			gtk_menu_shell_append(GTK_MENU_SHELL(submenu), power_off_item);
@@ -144,10 +148,9 @@ int main(int argc, char *argv[])
     gtk_init(&argc, &argv);
 	notify_init("mountatray");
 
-    GtkStatusIcon *tray = gtk_status_icon_new_from_icon_name("drive-harddisk");
+    GtkStatusIcon *tray = gtk_status_icon_new_from_icon_name("drive");
     gtk_status_icon_set_tooltip_text(tray, "mountatray");
     gtk_status_icon_set_visible(tray, TRUE);
-
     g_signal_connect(tray, "activate", G_CALLBACK(on_left_click), NULL);
 
     gtk_main();
