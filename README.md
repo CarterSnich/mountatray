@@ -15,9 +15,7 @@ Prerequisites:
 
 Then, use this compile command:
 
-`
-gcc -std=gnu99 -Wall main.c drives.c -o mountatray `pkg-config --cflags --libs gtk+-3.0 libudev libnotify`
-`
+`` gcc -std=gnu99 -Wall main.c drives.c -o mountatray `pkg-config --cflags --libs gtk+-3.0 libudev libnotify` ``
 
 Lastly, run it: 
 
