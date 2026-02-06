@@ -1,6 +1,6 @@
 # mountatray
 
-A simple mounting/unmounting tray applet inspired by [udiskie](https://github.com/coldfix/udiskie). This project is somewhat vibe-coded, but without any AI extentions on my text editor. To prevent that, I used Neovim with no distributed configuration (like LazyVim, etc.) and plugins, just a few `init.lua` configurations.
+A simple mounting/unmounting tray applet inspired by [udiskie](https://github.com/coldfix/udiskie). This project is somewhat vibe-coded, but without any AI extentions on my text editor, only ChatGPT on my browser. To prevent that, I used Neovim with no distributed configuration (like LazyVim, etc.) and plugins, just a few `init.lua` configurations.
 
 
 ## Manual building
