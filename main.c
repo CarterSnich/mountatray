@@ -1,6 +1,9 @@
 #include <gtk/gtk.h>
-#include "drives.h"
 #include <stdio.h>
+#include <libnotify/notify.h>
+
+#include "drives.h"
+#include "notify.h"
 
 typedef struct {
 	char *node;
@@ -13,7 +16,10 @@ static void on_power_off_clicked (GtkMenuItem *item, gpointer user_data)
 {
 	DriveCallbackData *cb = user_data;
 	printf("Power off %s (%s)\n", cb->model, cb->node);
-	
+	char body[256];
+	snprintf(body, sizeof(body), "Powering off %s (%s)", cb->model, cb->node);
+	NotifyNotification *n = send_notification("mountatray", body, "drive-harddisk");
+
 	for (size_t i = 0; i < cb->part_count; i++) {
 		if (cb->parts[i].mounted) {
 			unmount_partition(cb->parts[i].node);
@@ -21,6 +27,9 @@ static void on_power_off_clicked (GtkMenuItem *item, gpointer user_data)
 	}
 
 	power_off_drive(cb->node);
+	snprintf(body, sizeof(body), "%s (%s) powered off", cb->model, cb->node);
+	update_notification(n, "mountatray", body, "drive-harddisk");
+	g_object_unref(n);
 }
 
 static void on_partition_clicked(GtkMenuItem *item, gpointer user_data)
@@ -28,10 +37,18 @@ static void on_partition_clicked(GtkMenuItem *item, gpointer user_data)
 	PartitionInfo *part = (PartitionInfo *)user_data;
 	printf("Action on %s (%s)\n", part->label, part->node);
 
+	char body[256];
+
 	if (part->mounted) {
 		unmount_partition(part->node);
+		snprintf(body, sizeof(body), "%s (%s) unmounted", 
+				part->label, part->node);
+		send_notification("mountatray", body, "drive-harddisk");
 	} else {
 		mount_partition(part->node);
+		snprintf(body, sizeof(body), "%s (%s) mounted", 
+				part->label, part->node);
+		send_notification("mountatray", body, "drive-harddisk");
 	}
 }
 
@@ -125,6 +142,7 @@ static void on_left_click(GtkStatusIcon *status_icon, gpointer user_data)
 int main(int argc, char *argv[]) 
 {
     gtk_init(&argc, &argv);
+	notify_init("mountatray");
 
     GtkStatusIcon *tray = gtk_status_icon_new_from_icon_name("drive-harddisk");
     gtk_status_icon_set_tooltip_text(tray, "mountatray");
@@ -133,6 +151,8 @@ int main(int argc, char *argv[])
     g_signal_connect(tray, "activate", G_CALLBACK(on_left_click), NULL);
 
     gtk_main();
+	notify_uninit();
+
     return 0;
 }
 
