@@ -10,11 +10,14 @@ Prerequisites:
 - pkg-config
 - gtk+3-devel
 - libudev-devel 
+- libnotify-devel
 - udisks2 (runtime)
 
 Then, use this compile command:
 
-`gcc -std=gnu99 -Wall main.c drives.c -o mountatray `pkg-config --cflags --libs gtk+-3.0 libudev``
+`
+gcc -std=gnu99 -Wall main.c drives.c -o mountatray `pkg-config --cflags --libs gtk+-3.0 libudev libnotify`
+`
 
 Lastly, run it: 
 
